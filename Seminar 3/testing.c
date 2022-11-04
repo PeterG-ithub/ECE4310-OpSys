@@ -31,7 +31,7 @@ int main(int argc, char*argv[])
     srand(time(0));
     int p1_args = 3;
     pthread_create(&producer_1, NULL, produce_rasberry_pi, &p1_args);
-    uint p2_args = 5;
+    int p2_args = 5;
     pthread_create(&producer_2, NULL, produce_rasberry_pi, &p2_args);
     
     pthread_join(producer_1, NULL);
