@@ -28,7 +28,6 @@ static void* thread_produce(void *args) // args blank pointer we will type cast 
 }
 static void* thread_consume(void *args){
     int ret;
-    printf("%d\n", atoi(args));
     for (;done < 100 ;){
         ret = pthread_mutex_lock(&mtx);
         if(ret != 0) return NULL;
