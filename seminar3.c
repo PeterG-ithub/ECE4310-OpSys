@@ -16,7 +16,7 @@ static void* thread_produce(void *args) // args blank pointer we will type cast 
     for (;done < 100 ;){
         ret = pthread_mutex_lock(&mtx); // lock after access done (globle var) is ok since it is not modifying it 
         if(ret != 0) return NULL;
-        ++ready;  // modify a globel var should be done after lock
+        ++ready;  
         printf("+");
         ret = pthread_mutex_unlock(&mtx);
         if(ret != 0) return NULL;
@@ -28,6 +28,7 @@ static void* thread_produce(void *args) // args blank pointer we will type cast 
 }
 static void* thread_consume(void *args){
     int ret;
+    printf("%d\n", atoi(args));
     for (;done < 100 ;){
         ret = pthread_mutex_lock(&mtx);
         if(ret != 0) return NULL;
@@ -50,11 +51,11 @@ static void* thread_consume(void *args){
 }
 int main(int argc, char*argv[]) // argc: argument count and argv: argument verctor
 {
-    pthread_t t1, t2; // create new variables in stack
+    pthread_t t1, t2; // create new variable in stack
     int loops, ret;
     loops = (argc > 1) ? atoi(argv[1]) : 1000000; // argv[0] is the name of the file
 
-    printf("\n");
+    printf("%d\n", loops);
 
     ret = pthread_create(&t1, NULL, thread_consume, &loops);
     ret = pthread_create(&t2, NULL, thread_produce, &loops);
