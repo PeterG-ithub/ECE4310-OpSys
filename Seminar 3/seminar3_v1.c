@@ -1,14 +1,16 @@
-#define _GNU_SOURCE
+#define _GNU_SOURCE  // pthread_setname_np, pthread_getname_np
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+
 int maxStock = 20;
 int currentStock = 0;
+
 static pthread_cond_t inStock = PTHREAD_COND_INITIALIZER;
-static void* stock_notification(void *);
+static void* the_students(void *);  //prototype
 
 typedef struct rasberryPi
 {
@@ -75,7 +77,7 @@ static void* make_students(void *args)
     for(int i = 0; i < *(int *)args; i ++)
     {
         printf("Creating student %d\n", i);
-        pthread_create(&student_number[i], NULL, stock_notification, 0);
+        pthread_create(&student_number[i], NULL, the_students, 0);
         sprintf(number, "%d", i);
         strcat(name, number);
         pthread_setname_np(student_number[i], name);
@@ -86,7 +88,7 @@ static void* make_students(void *args)
 }
 
 
-static void* stock_notification(void *args)
+static void* the_students(void *args)
 {
     int ret;
     char name[16];
@@ -100,7 +102,7 @@ static void* stock_notification(void *args)
         }
         if (currentStock > 0){
             --currentStock;
-            pthread_getname_np(pthread_self(), name, 16);
+            pthread_getname_np(pthread_self(), name, 16);       // pthread_self() function returns the ID of the calling thread
             printf("%s bought the thing, Current Stock: %d\n", name, currentStock);
         }
         ret = pthread_mutex_unlock(&mtx);
