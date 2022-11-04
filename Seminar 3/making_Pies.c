@@ -70,6 +70,7 @@ int main(int argc, char*argv[])
     //     printf("Created Rasberry Pi # %d\n", i);
     //     stockList = newRasberryPi;
     // }
+    
 
     pthread_t producer_1, producer_2;
     int p1_args = 3;
