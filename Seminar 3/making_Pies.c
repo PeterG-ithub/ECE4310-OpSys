@@ -73,11 +73,11 @@ int main(int argc, char*argv[])
     
 
     pthread_t producer_1, producer_2;
-    int p1_args = 3;
+    int p1_args = 0;
     pthread_create(&producer_1, NULL, produce_rasberry_pi, &p1_args);
     pthread_setname_np(producer_1, "Producer 1");
 
-    int p2_args = 5;
+    int p2_args = 0;
     pthread_create(&producer_2, NULL, produce_rasberry_pi, &p2_args);
     pthread_setname_np(producer_2, "Producer 2");
 

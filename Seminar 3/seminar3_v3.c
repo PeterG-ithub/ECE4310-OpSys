@@ -74,12 +74,12 @@ static void* produce_rasberry_pi(void *args)
 
 
 
-static void* make_students(void *args)
+static void* make_students(int args)
 {
 
     pthread_t student_number[100];  // upto 100 students
     char number[50];
-    for(int i = 0; i < *(int *)args; i++)
+    for(int i = 0; i < args; i++)
     {
         pthread_create(&student_number[i], NULL, the_students, NULL); // NULL could be anything since not being used
         printf("[Time %d] Student %d arrived\n",timer, i);
@@ -89,7 +89,7 @@ static void* make_students(void *args)
         usleep(1000000);  // wait for 1 second
         timer++;
     }
-    
+
     return NULL;
 }
 
@@ -131,19 +131,35 @@ int main(int argc, char*argv[])
 
     pthread_t producer_1, producer_2, student_maker;  // variable for thread in stack
     int max_number_of_students = 100;
-    pthread_create(&student_maker, NULL, make_students, &max_number_of_students);
+    //pthread_create(&student_maker, NULL, make_students, &max_number_of_students);
     
-    int p1_args = 20; 
+    int p1_args = 0; 
     pthread_create(&producer_1, NULL, produce_rasberry_pi, &p1_args);
     pthread_setname_np(producer_1, "Producer 1");
 
-    int p2_args = 20;
+    int p2_args = 0;
     pthread_create(&producer_2, NULL, produce_rasberry_pi, &p2_args);
     pthread_setname_np(producer_2, "Producer 2");
+    
+    pthread_t student_number[100];  // upto 100 students
+    char number[50];
+    // for(int i = 0; i < max_number_of_students; i++)
+    // {
+    //     pthread_create(&student_number[i], NULL, the_students, NULL); // NULL could be anything since not being used
+    //     printf("[Time %d] Student %d arrived\n",timer, i);
+    //     sprintf(number, "%d", i);  // sprintf convert integer to string
+    //     pthread_setname_np(student_number[i], number);
+        
+    //     //usleep(1000000);  // wait for 1 second
+    //     timer++;
+    // }
 
-//  pthread_join(student_maker, NULL);
     pthread_join(producer_1, NULL);
-//  pthread_join(producer_2, NULL);
-
+    pthread_join(producer_2, NULL);
+    // for(int i = 0; i < max_number_of_students; i++)
+    // {
+    //     pthread_join(student_number[i], NULL);
+    // }
+    
     return 0;
 }
