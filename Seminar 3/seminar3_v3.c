@@ -8,10 +8,12 @@
 
 int maxStock = 20;
 static int timer = 0;
+static int id = 0;
 static int currentStock = 0;
 static int done = 0;
 static pthread_cond_t inStock = PTHREAD_COND_INITIALIZER;
 static pthread_cond_t inventory = PTHREAD_COND_INITIALIZER;
+static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 static void* the_students(void *);  //prototype
 
 typedef struct rasberryPi  
@@ -28,8 +30,7 @@ rasberryPi_t *create_new_rasberryPi(int id)
     return result;
 };
 
-static int id = 0;
-static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
+
 //Producing Threads
 static void* produce_rasberry_pi(void *args) 
 {
@@ -74,34 +75,28 @@ static void* produce_rasberry_pi(void *args)
 
 
 
-static void* make_students(int args)
+static void* time_manager(void *args)
 {
-
-    pthread_t student_number[100];  // upto 100 students
-    char number[50];
-    for(int i = 0; i < args; i++)
+    int ret;
+    for (;done < 100 ;)
     {
-        pthread_create(&student_number[i], NULL, the_students, NULL); // NULL could be anything since not being used
-        printf("[Time %d] Student %d arrived\n",timer, i);
-        sprintf(number, "%d", i);  // sprintf convert integer to string
-        pthread_setname_np(student_number[i], number);
-        
-        usleep(1000000);  // wait for 1 second
+        ret = pthread_mutex_lock(&mtx); // return NULL when error occurs, ret will become 0 when success
+        if(ret != 0) return NULL;
         timer++;
+        printf("\n--------------------[Time %d]--------------------\n", timer);
+        ret = pthread_mutex_unlock(&mtx);
+        if(ret != 0) return NULL;
+        sleep(1);
     }
-
     return NULL;
 }
 
 // cosumer function8
 static void* the_students(void *args)
 {
- //   pthread_join(pthread_self(), NULL);
     int ret;
     char name[16];
     pthread_getname_np(pthread_self(), name, 16);       // pthread_self() function returns the ID of the calling thread
-
-    
     for (;done < 100 ;){
         ret = pthread_mutex_lock(&mtx);
         if(ret != 0) return NULL;
@@ -117,7 +112,6 @@ static void* the_students(void *args)
         if(ret != 0) return NULL;
         pthread_cond_signal(&inventory); // inventory no longer full
         if(ret != 0) return NULL;
-                
         pthread_exit(0); 
     }
     return NULL;
@@ -129,37 +123,33 @@ int main(int argc, char*argv[])
     printf("Were Making PIES!\n\n");
     srand(time(0)); // use time as random number seed, time(0) gives the time in second
 
-    pthread_t producer_1, producer_2, student_maker;  // variable for thread in stack
+    pthread_t producer_1, producer_2, time_manage;  // variable for thread in stack
     int max_number_of_students = 100;
-    //pthread_create(&student_maker, NULL, make_students, &max_number_of_students);
-    
-    int p1_args = 0; 
-    pthread_create(&producer_1, NULL, produce_rasberry_pi, &p1_args);
-    pthread_setname_np(producer_1, "Producer 1");
-
-    int p2_args = 0;
-    pthread_create(&producer_2, NULL, produce_rasberry_pi, &p2_args);
-    pthread_setname_np(producer_2, "Producer 2");
-    
     pthread_t student_number[100];  // upto 100 students
     char number[50];
-    // for(int i = 0; i < max_number_of_students; i++)
-    // {
-    //     pthread_create(&student_number[i], NULL, the_students, NULL); // NULL could be anything since not being used
-    //     printf("[Time %d] Student %d arrived\n",timer, i);
-    //     sprintf(number, "%d", i);  // sprintf convert integer to string
-    //     pthread_setname_np(student_number[i], number);
-        
-    //     //usleep(1000000);  // wait for 1 second
-    //     timer++;
-    // }
+    int p1_args = 0; 
+    int p2_args = 0;
+    pthread_create(&producer_1, NULL, produce_rasberry_pi, &p1_args);
+    pthread_setname_np(producer_1, "Producer 1");
+    pthread_create(&producer_2, NULL, produce_rasberry_pi, &p2_args);
+    pthread_setname_np(producer_2, "Producer 2");
+    pthread_create(&time_manage, NULL, time_manager, 0);
+    
+    for(int i = 0; i < max_number_of_students; i++)
+    {
+        pthread_create(&student_number[i], NULL, the_students, NULL); // NULL could be anything since not being used
+        printf("[Time %d] Student %d arrived\n",timer, i);
+        sprintf(number, "%d", i);  // sprintf convert integer to string
+        pthread_setname_np(student_number[i], number);
+    }
 
     pthread_join(producer_1, NULL);
     pthread_join(producer_2, NULL);
-    // for(int i = 0; i < max_number_of_students; i++)
-    // {
-    //     pthread_join(student_number[i], NULL);
-    // }
+    pthread_join(time_manage, NULL);
+    for(int i = 0; i < max_number_of_students; i++)
+    {
+        pthread_join(student_number[i], NULL);
+    }
     
     return 0;
 }
