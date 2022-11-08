@@ -1,3 +1,16 @@
+/* Group [123]-DE45: Peter Gabradilla, Sherwin Sathish, Yongqiang Wang
+Create a producer/consumer problem for the a "Raspberry PI" structure.
+
+you should use 2 producers
+    Producer 1 creates a new "R_PI" at a random time in between 0s and 3 s
+    Producer 2 creates a new "R_PI" at a random time in between 0s and 5 s
+a new consumer (student) is trying to get/buy a "R_PI" every 1s
+    each consumer will be in a sep thread
+use a global list to hold each available "Raspberry PI"
+    each "R_PI" will have: ID, next(for list implementation) ....
+    you will have to use malloc for each new "R_PI"
+    max size for the list = 20
+*/
 #define _GNU_SOURCE  
 #include <stdio.h>
 #include <stdlib.h>
