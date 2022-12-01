@@ -2,6 +2,7 @@
 #include <linux/kernel.h>
 #include <linux/kern_levels.h>
 #include <linux/fs.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 
@@ -35,10 +36,7 @@ static ssize_t ece_write(struct file *fp, const char *buf, size_t count, loff_t 
     return count;
 }
 
-static ssize_t ece_read(struct file *fp,
-    char *buf,
-    size_t count,
-    loff_t *offset)
+static ssize_t ece_read(struct file *fp, char *buf, size_t count, loff_t *offset)
 {
     int ret;
     if(ece_offset_r + count >= ECE_BUF_SIZE)
@@ -59,9 +57,10 @@ static ssize_t ece_read(struct file *fp,
     return count;
 }
 
-static struct file_operations ece_fops = {
+static struct file_operations ece_fops = 
+{
     .read = ece_read,
-    .write = ece_write,
+    .write = ece_write
 };
 
 int ece_init(void)
